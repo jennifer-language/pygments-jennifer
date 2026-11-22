@@ -31,7 +31,7 @@ jobs:
         # The floor in pyproject.toml and the newest release.
         pygments: ["2.13.0", "latest"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install the plugin
         run: |
@@ -58,9 +58,9 @@ jobs:
     name: Copies match jennifer/editors/pygments
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: jennifer-language/jennifer
           path: .jennifer
@@ -86,7 +86,7 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: actions/setup-python@v5
         with:
