@@ -8,7 +8,11 @@ their own; this is that plugin.
 
 ## Install
 
-Until the package is on PyPI, install it from the repository:
+```sh
+pip install pygments-jennifer
+```
+
+Or the development version, from the repository:
 
 ```sh
 pip install git+https://github.com/jennifer-language/pygments-jennifer.git
@@ -84,6 +88,15 @@ tools/sync.sh            # copy from a sibling checkout ../jennifer
 tools/sync.sh --check    # what CI runs
 python -m pip install -e ".[test]" && python -m pytest
 ```
+
+## Releasing
+
+Set the version in `pyproject.toml` and `src/pygments_jennifer/__init__.py`,
+add it to `CHANGELOG.md`, commit, and push a tag of the same name (`0.1.0`, no
+`v`) to GitHub. CI builds the sdist and the wheel once the tests and the sync
+check pass, and publishes them to PyPI as a trusted publisher: the PyPI
+project trusts this repository's `ci.yml`, so no token is involved. A tag that
+does not match the version fails before anything is built.
 
 ## License
 
