@@ -21,6 +21,9 @@ jobs:
   test:
     name: Python ${{ matrix.python }}, Pygments ${{ matrix.pygments }}
     runs-on: ubuntu-latest
+    # The official Python images, not actions/setup-python: it has no builds of
+    # an end-of-life Python (3.9) for current runner images.
+    container: python:${{ matrix.python }}-slim
     strategy:
       fail-fast: false
       matrix:
@@ -29,10 +32,6 @@ jobs:
         pygments: ["2.13.0", "latest"]
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python }}
 
       - name: Install the plugin
         run: |
