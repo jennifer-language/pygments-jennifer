@@ -1,0 +1,73 @@
+# SPDX-License-Identifier: BSD-2-Clause
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["*.*.*"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Python ${{ matrix.python }}, Pygments ${{ matrix.pygments }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        # The floor in pyproject.toml and the newest release.
+        pygments: ["2.13.0", "latest"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install the plugin
+        run: |
+          set -eu
+          python -m pip install --upgrade pip
+          python -m pip install ".[test]"
+          if [ "${{ matrix.pygments }}" != latest ]; then
+            python -m pip install "pygments==${{ matrix.pygments }}"
+          fi
+          python -m pip show pygments | head -2
+
+      - name: Tests
+        run: python -m pytest -q
+
+      - name: pygmentize finds the lexer
+        run: |
+          set -eu
+          pygmentize -L lexers | grep -q 'jennifer:'
+          pygmentize -l jennifer -f html tests/example.j > /dev/null
+          pygmentize -f html tests/example.j > /dev/null
+
+  # The copies must match the interpreter repository's editors/pygments/.
+  sync:
+    name: Copies match jennifer/editors/pygments
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/checkout@v4
+        with:
+          repository: jennifer-language/jennifer
+          path: .jennifer
+          sparse-checkout: editors/pygments
+
+      - name: Compare
+        env:
+          JENNIFER_EDITORS: .jennifer/editors/pygments
+        run: tools/sync.sh --check
